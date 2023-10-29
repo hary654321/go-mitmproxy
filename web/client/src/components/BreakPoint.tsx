@@ -75,7 +75,9 @@ class BreakPoint extends React.Component<IProps, IState> {
 
     return (
       <div>
-        <Button variant={variant} size="sm" onClick={this.handleShow}>BreakPoint</Button>
+        <Button variant={variant} size="sm" onClick={this.handleShow}>
+          BreakPoint
+        </Button>
 
         <Modal show={this.state.show} onHide={this.handleClose}>
           <Modal.Header closeButton>
@@ -84,9 +86,22 @@ class BreakPoint extends React.Component<IProps, IState> {
 
           <Modal.Body>
             <Form.Group as={Row}>
-              <Form.Label column sm={2}>Method</Form.Label>
+              <Form.Label column sm={2}>
+                Method
+              </Form.Label>
               <Col sm={10}>
-                <Form.Control as="select" value={rule.method} onChange={e => { this.setState({ rule: { ...rule, method: e.target.value as Method } }) }}>
+                <Form.Control
+                  as="select"
+                  value={rule.method}
+                  onChange={(e) => {
+                    this.setState({
+                      rule: {
+                        ...rule,
+                        method: e.target.value as Method,
+                      },
+                    })
+                  }}
+                >
                   <option>ALL</option>
                   <option>GET</option>
                   <option>POST</option>
@@ -97,14 +112,41 @@ class BreakPoint extends React.Component<IProps, IState> {
             </Form.Group>
 
             <Form.Group as={Row}>
-              <Form.Label column sm={2}>URL</Form.Label>
-              <Col sm={10}><Form.Control value={rule.url} onChange={e => { this.setState({ rule: { ...rule, url: e.target.value } }) }} /></Col>
+              <Form.Label column sm={2}>
+                URL
+              </Form.Label>
+              <Col sm={10}>
+                <Form.Control
+                  value={rule.url}
+                  onChange={(e) => {
+                    this.setState({
+                      rule: {
+                        ...rule,
+                        url: e.target.value,
+                      },
+                    })
+                  }}
+                />
+              </Col>
             </Form.Group>
 
             <Form.Group as={Row}>
-              <Form.Label column sm={2}>Action</Form.Label>
+              <Form.Label column sm={2}>
+                Action
+              </Form.Label>
               <Col sm={10}>
-                <Form.Control as="select" value={rule.action} onChange={e => { this.setState({ rule: { ...rule, action: parseInt(e.target.value) as Action } }) }}>
+                <Form.Control
+                  as="select"
+                  value={rule.action}
+                  onChange={(e) => {
+                    this.setState({
+                      rule: {
+                        ...rule,
+                        action: parseInt(e.target.value) as Action,
+                      },
+                    })
+                  }}
+                >
                   <option value="1">Request</option>
                   <option value="2">Response</option>
                   <option value="3">Both</option>

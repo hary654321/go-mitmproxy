@@ -1,8 +1,19 @@
 import type { Flow, Header } from './flow'
 import filterRuleParser from './filterRuleParser'
 
-const FLOW_FILTER_SCOPES = ['url', 'method', 'code', 'header', 'reqheader', 'resheader', 'body', 'reqbody', 'resbody', 'all'] as const
-type FlowFilterScope = typeof FLOW_FILTER_SCOPES[number]
+const FLOW_FILTER_SCOPES = [
+  'url',
+  'method',
+  'code',
+  'header',
+  'reqheader',
+  'resheader',
+  'body',
+  'reqbody',
+  'resbody',
+  'all',
+] as const
+type FlowFilterScope = (typeof FLOW_FILTER_SCOPES)[number]
 
 type Rule = IRuleKeyword | IRuleNot | IRuleAnd | IRuleOr
 
@@ -45,17 +56,13 @@ export class FlowFilter {
   private _match(flow: Flow, rule: Rule): boolean {
     if (rule.type === 'keyword') {
       return this.getFlowFilterKeyword(rule).match(flow)
-    }
-    else if (rule.type === 'not') {
+    } else if (rule.type === 'not') {
       return !this._match(flow, rule.expr)
-    }
-    else if (rule.type === 'and') {
+    } else if (rule.type === 'and') {
       return this._match(flow, rule.left) && this._match(flow, rule.right)
-    }
-    else if (rule.type === 'or') {
+    } else if (rule.type === 'or') {
       return this._match(flow, rule.left) || this._match(flow, rule.right)
-    }
-    else {
+    } else {
       // eslint-disable-next-line
       // @ts-ignore
       throw new Error(`invalid rule type ${rule.type}`)
@@ -135,7 +142,10 @@ export class FlowFilterKeyword {
   }
 
   private matchMethod(flow: Flow): boolean {
-    return this.matchKeyword(flow.request.method) || this.matchKeyword(flow.request.method.toLowerCase())
+    return (
+      this.matchKeyword(flow.request.method) ||
+      this.matchKeyword(flow.request.method.toLowerCase())
+    )
   }
 
   private matchCode(flow: Flow): boolean {
@@ -145,7 +155,7 @@ export class FlowFilterKeyword {
 
   private _matchHeader(header: Header): boolean {
     return Object.entries(header).some(([key, vals]) => {
-      return [key].concat(vals).some(text => this.matchKeyword(text))
+      return [key].concat(vals).some((text) => this.matchKeyword(text))
     })
   }
 
@@ -179,7 +189,12 @@ export class FlowFilterKeyword {
   }
 
   private matchAll(flow: Flow): boolean {
-    return this.matchUrl(flow) || this.matchMethod(flow) || this.matchHeader(flow) || this.matchBody(flow)
+    return (
+      this.matchUrl(flow) ||
+      this.matchMethod(flow) ||
+      this.matchHeader(flow) ||
+      this.matchBody(flow)
+    )
   }
 
   private matchKeyword(text: string): boolean {

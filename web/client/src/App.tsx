@@ -3,7 +3,6 @@ import Table from 'react-bootstrap/Table'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import './App.css'
-import GitHubLogo from './github-mark.svg'
 import Badge from 'react-bootstrap/Badge'
 
 import BreakPoint from './components/BreakPoint'
@@ -12,7 +11,12 @@ import ViewFlow from './components/ViewFlow'
 import Resizer from './components/Resizer'
 
 import { Flow, FlowManager } from './lib/flow'
-import { parseMessage, SendMessageType, buildMessageMeta, MessageType } from './lib/message'
+import {
+  parseMessage,
+  SendMessageType,
+  buildMessageMeta,
+  MessageType,
+} from './lib/message'
 import { isInViewPort } from './lib/utils'
 import { ConnectionManager, IConnection } from './lib/connection'
 
@@ -26,7 +30,7 @@ interface IState {
 const wsReconnIntervals = [1, 1, 2, 2, 4, 4, 8, 8, 16, 16, 32, 32]
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface IProps { }
+interface IProps {}
 
 class App extends React.Component<IProps, IState> {
   private connMgr: ConnectionManager
@@ -86,7 +90,7 @@ class App extends React.Component<IProps, IState> {
       this.setState({ wsStatus: 'open' })
     }
 
-    this.ws.onerror = evt => {
+    this.ws.onerror = (evt) => {
       console.error('ERROR:', evt)
       this.ws?.close()
     }
@@ -97,14 +101,16 @@ class App extends React.Component<IProps, IState> {
 
       this.wsReconnCount++
       this.ws = null
-      const waitSeconds = wsReconnIntervals[this.wsReconnCount] || wsReconnIntervals[wsReconnIntervals.length - 1]
+      const waitSeconds =
+        wsReconnIntervals[this.wsReconnCount] ||
+        wsReconnIntervals[wsReconnIntervals.length - 1]
       console.info(`will reconnect after ${waitSeconds} seconds`)
       setTimeout(() => {
         this.initWs()
       }, waitSeconds * 1000)
     }
 
-    this.ws.onmessage = evt => {
+    this.ws.onmessage = (evt) => {
       const msg = parseMessage(evt.data)
       if (!msg) {
         console.error('parse error:', evt.data)
@@ -117,44 +123,44 @@ class App extends React.Component<IProps, IState> {
         if (conn.intercept) conn.opening = true
         this.connMgr.add(msg.id, conn)
         this.setState({ flows: this.state.flows })
-      }
-      else if (msg.type === MessageType.CONN_CLOSE) {
+      } else if (msg.type === MessageType.CONN_CLOSE) {
         const conn = this.connMgr.get(msg.id)
         if (!conn) return
         conn.opening = false
         conn.flowCount = msg.content as number
         this.setState({ flows: this.state.flows })
         this.connMgr.delete(msg.id)
-      }
-      else if (msg.type === MessageType.REQUEST) {
+      } else if (msg.type === MessageType.REQUEST) {
         const flow = new Flow(msg, this.connMgr)
         flow.getConn()
         this.flowMgr.add(flow)
 
         let shouldScroll = false
-        if (this.tableBottomRef?.current && isInViewPort(this.tableBottomRef.current)) {
+        if (
+          this.tableBottomRef?.current &&
+          isInViewPort(this.tableBottomRef.current)
+        ) {
           shouldScroll = true
         }
         this.setState({ flows: this.flowMgr.showList() }, () => {
           if (shouldScroll) {
-            this.tableBottomRef?.current?.scrollIntoView({ behavior: 'auto' })
+            this.tableBottomRef?.current?.scrollIntoView({
+              behavior: 'auto',
+            })
           }
         })
-      }
-      else if (msg.type === MessageType.REQUEST_BODY) {
+      } else if (msg.type === MessageType.REQUEST_BODY) {
         const flow = this.flowMgr.get(msg.id)
         if (!flow) return
         flow.addRequestBody(msg)
         this.setState({ flows: this.state.flows })
-      }
-      else if (msg.type === MessageType.RESPONSE) {
+      } else if (msg.type === MessageType.RESPONSE) {
         const flow = this.flowMgr.get(msg.id)
         if (!flow) return
         flow.getConn()
         flow.addResponse(msg)
         this.setState({ flows: this.state.flows })
-      }
-      else if (msg.type === MessageType.RESPONSE_BODY) {
+      } else if (msg.type === MessageType.RESPONSE_BODY) {
         const flow = this.flowMgr.get(msg.id)
         if (!flow || !flow.response) return
         flow.addResponseBody(msg)
@@ -169,13 +175,24 @@ class App extends React.Component<IProps, IState> {
       <div className="main-table-wrap">
         <div className="top-control">
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ marginRight: '10px' }}><Button size="sm" onClick={() => {
-              this.flowMgr.clear()
-              this.setState({ flows: this.flowMgr.showList(), flow: null })
-            }}>Clear</Button></div>
+            <div style={{ marginRight: '10px' }}>
+              <Button
+                size="sm"
+                onClick={() => {
+                  this.flowMgr.clear()
+                  this.setState({
+                    flows: this.flowMgr.showList(),
+                    flow: null,
+                  })
+                }}
+              >
+                Clear
+              </Button>
+            </div>
             <div style={{ marginRight: '10px' }}>
               <Form.Control
-                size="sm" placeholder="Filter"
+                size="sm"
+                placeholder="Filter"
                 style={{ width: '350px' }}
                 isInvalid={this.state.filterInvalid}
                 onChange={(e) => {
@@ -186,27 +203,38 @@ class App extends React.Component<IProps, IState> {
                     }
                     this.setState({
                       filterInvalid: err ? true : false,
-                      flows: this.flowMgr.showList()
+                      flows: this.flowMgr.showList(),
                     })
                   })
                 }}
-              >
-              </Form.Control>
+              ></Form.Control>
             </div>
-            
+
             <div style={{ marginRight: '10px' }}>
-              <BreakPoint onSave={rules => {
-                const msg = buildMessageMeta(SendMessageType.CHANGE_BREAK_POINT_RULES, rules)
-                if (this.ws) this.ws.send(msg)
-              }} />
+              <BreakPoint
+                onSave={(rules) => {
+                  const msg = buildMessageMeta(
+                    SendMessageType.CHANGE_BREAK_POINT_RULES,
+                    rules,
+                  )
+                  if (this.ws) this.ws.send(msg)
+                }}
+              />
             </div>
           </div>
-          
+
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ marginRight: '10px' }}>
-              { this.state.wsStatus === 'open' ? <Badge pill bg="success">on</Badge> : <Badge pill bg="danger">off</Badge> }
+              {this.state.wsStatus === 'open' ? (
+                <Badge pill bg="success">
+                  on
+                </Badge>
+              ) : (
+                <Badge pill bg="danger">
+                  off
+                </Badge>
+              )}
             </div>
-            <a href='https://github.com/lqqyt2423/go-mitmproxy' target='_blank' rel="noreferrer"><img style={{ height: '30px' }} src={GitHubLogo} alt="GitHub Logo" /></a>
           </div>
         </div>
 
@@ -225,32 +253,48 @@ class App extends React.Component<IProps, IState> {
               </tr>
             </thead>
             <tbody>
-              {
-                flows.map(f => {
-                  const fp = f.preview()
+              {flows.map((f) => {
+                const fp = f.preview()
 
-                  return (
-                    <FlowPreview
-                      key={fp.id}
-                      flow={fp}
-                      isSelected={(this.state.flow && this.state.flow.id === fp.id) ? true : false}
-                      onShowDetail={() => {
-                        this.setState({ flow: f })
-                      }}
-                    />
-                  )
-                })
-              }
+                return (
+                  <FlowPreview
+                    key={fp.id}
+                    flow={fp}
+                    isSelected={
+                      this.state.flow && this.state.flow.id === fp.id
+                        ? true
+                        : false
+                    }
+                    onShowDetail={() => {
+                      this.setState({ flow: f })
+                    }}
+                  />
+                )
+              })}
             </tbody>
           </Table>
-          <div ref={this.tableBottomRef} id="hidden-bottom" style={{ height: '0px', visibility: 'hidden', marginBottom: '1px' }}></div>
+          <div
+            ref={this.tableBottomRef}
+            id="hidden-bottom"
+            style={{
+              height: '0px',
+              visibility: 'hidden',
+              marginBottom: '1px',
+            }}
+          ></div>
         </div>
 
         <ViewFlow
           flow={this.state.flow}
-          onClose={() => { this.setState({ flow: null }) }}
-          onReRenderFlows={() => { this.setState({ flows: this.state.flows }) }}
-          onMessage={msg => { if (this.ws) this.ws.send(msg) }}
+          onClose={() => {
+            this.setState({ flow: null })
+          }}
+          onReRenderFlows={() => {
+            this.setState({ flows: this.state.flows })
+          }}
+          onMessage={(msg) => {
+            if (this.ws) this.ws.send(msg)
+          }}
         />
       </div>
     )

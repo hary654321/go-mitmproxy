@@ -116,7 +116,8 @@ export class Flow {
     if (this.response && this.response.header) {
       if (this.response.header['Content-Type'] != null) {
         this.contentType = this.response.header['Content-Type'][0].split(';')[0]
-        if (this.contentType.includes('javascript')) this.contentType = 'javascript'
+        if (this.contentType.includes('javascript'))
+          this.contentType = 'javascript'
       }
       if (this.response.header['Content-Length'] != null) {
         this.headerContentLengthExist = true
@@ -150,7 +151,9 @@ export class Flow {
       host: this.url.host,
       path: this.path,
       method: this.request.method,
-      statusCode: this.response ? String(this.response.statusCode) : '(pending)',
+      statusCode: this.response
+        ? String(this.response.statusCode)
+        : '(pending)',
       size: this.size,
       costTime: this.costTime,
       contentType: this.contentType,
@@ -178,7 +181,7 @@ export class Flow {
   public hexviewRequestBody(): string | null {
     if (this._hexviewRequestBody !== null) return this._hexviewRequestBody
     if (this.status < MessageType.REQUEST_BODY) return null
-    if (!(this.request?.body?.byteLength)) return null
+    if (!this.request?.body?.byteLength) return null
 
     this._hexviewRequestBody = bufHexView(this.request.body)
     return this._hexviewRequestBody
@@ -207,10 +210,11 @@ export class Flow {
     if (this._previewResponseBody) return this._previewResponseBody
 
     if (this.status < MessageType.RESPONSE_BODY) return null
-    if (!(this.response?.body?.byteLength)) return null
+    if (!this.response?.body?.byteLength) return null
 
     let contentType: string | undefined
-    if (this.response.header['Content-Type']) contentType = this.response.header['Content-Type'][0]
+    if (this.response.header['Content-Type'])
+      contentType = this.response.header['Content-Type'][0]
     if (!contentType) return null
 
     if (contentType.startsWith('image/')) {
@@ -218,8 +222,7 @@ export class Flow {
         type: 'image',
         data: arrayBufferToBase64(this.response.body),
       }
-    }
-    else if (contentType.includes('application/json')) {
+    } else if (contentType.includes('application/json')) {
       this._previewResponseBody = {
         type: 'json',
         data: this.responseBody(),
@@ -233,7 +236,7 @@ export class Flow {
     if (this._previewRequestBody) return this._previewRequestBody
 
     if (this.status < MessageType.REQUEST_BODY) return null
-    if (!(this.request.body?.byteLength)) return null
+    if (!this.request.body?.byteLength) return null
 
     if (!this.isTextRequest()) {
       this._previewRequestBody = {
@@ -254,7 +257,7 @@ export class Flow {
     if (this._hexviewResponseBody !== null) return this._hexviewResponseBody
 
     if (this.status < MessageType.RESPONSE_BODY) return null
-    if (!(this.response?.body?.byteLength)) return null
+    if (!this.response?.body?.byteLength) return null
 
     this._hexviewResponseBody = bufHexView(this.response.body)
     return this._hexviewResponseBody
@@ -286,7 +289,9 @@ export class FlowManager {
 
   showList() {
     if (!this.flowFilter) return this.items
-    return this.items.filter(item => (this.flowFilter as FlowFilter).match(item))
+    return this.items.filter((item) =>
+      (this.flowFilter as FlowFilter).match(item),
+    )
   }
 
   add(item: Flow) {

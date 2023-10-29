@@ -81,7 +81,10 @@ export enum SendMessageType {
 // messageEdit
 // version 1 byte + type 1 byte + id 36 byte + header len 4 byte + header content bytes + body len 4 byte + [body content bytes]
 export const buildMessageEdit = (messageType: SendMessageType, flow: Flow) => {
-  if (messageType === SendMessageType.DROP_REQUEST || messageType === SendMessageType.DROP_RESPONSE) {
+  if (
+    messageType === SendMessageType.DROP_REQUEST ||
+    messageType === SendMessageType.DROP_RESPONSE
+  ) {
     const view = new Uint8Array(38)
     view[0] = MESSAGE_VERSION
     view[1] = messageType
@@ -101,10 +104,12 @@ export const buildMessageEdit = (messageType: SendMessageType, flow: Flow) => {
   }
 
   if (body instanceof ArrayBuffer) body = new Uint8Array(body)
-  const bodyLen = (body && body.byteLength) ? body.byteLength : 0
+  const bodyLen = body && body.byteLength ? body.byteLength : 0
 
-  if ('Content-Encoding' in header.header) delete header.header['Content-Encoding']
-  if ('Transfer-Encoding' in header.header) delete header.header['Transfer-Encoding']
+  if ('Content-Encoding' in header.header)
+    delete header.header['Content-Encoding']
+  if ('Transfer-Encoding' in header.header)
+    delete header.header['Transfer-Encoding']
   header.header['Content-Length'] = [String(bodyLen)]
 
   const headerBytes = new TextEncoder().encode(JSON.stringify(header))
@@ -115,7 +120,8 @@ export const buildMessageEdit = (messageType: SendMessageType, flow: Flow) => {
   view[1] = messageType
   view.set(new TextEncoder().encode(flow.id), 2)
   view.set(headerBytes, 2 + 36 + 4)
-  if (bodyLen) view.set(body as Uint8Array, 2 + 36 + 4 + headerBytes.byteLength + 4)
+  if (bodyLen)
+    view.set(body as Uint8Array, 2 + 36 + 4 + headerBytes.byteLength + 4)
 
   const view2 = new DataView(data)
   view2.setUint32(2 + 36, headerBytes.byteLength)

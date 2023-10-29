@@ -10,7 +10,10 @@ interface IProps {
 
 class FlowPreview extends React.Component<IProps> {
   shouldComponentUpdate(nextProps: IProps) {
-    if (nextProps.isSelected === this.props.isSelected && shallowEqual(nextProps.flow, this.props.flow)) {
+    if (
+      nextProps.isSelected === this.props.isSelected &&
+      shallowEqual(nextProps.flow, this.props.flow)
+    ) {
       return false
     }
     return true
@@ -29,7 +32,8 @@ class FlowPreview extends React.Component<IProps> {
     }
 
     return (
-      <tr className={classNames.length ? classNames.join(' ') : undefined}
+      <tr
+        className={classNames.length ? classNames.join(' ') : undefined}
         onClick={() => {
           this.props.onShowDetail()
         }}

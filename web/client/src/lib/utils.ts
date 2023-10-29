@@ -5,7 +5,9 @@ export const isTextBody = (payload: IRequest | IResponse) => {
   if (!payload.header) return false
   if (!payload.header['Content-Type']) return false
 
-  return /text|javascript|json|x-www-form-urlencoded|xml|form-data/.test(payload.header['Content-Type'].join(''))
+  return /text|javascript|json|x-www-form-urlencoded|xml|form-data/.test(
+    payload.header['Content-Type'].join(''),
+  )
 }
 
 export const getSize = (len: number) => {
@@ -84,17 +86,7 @@ export const bufHexView = (buf: ArrayBuffer) => {
 export function isInViewPort(element: HTMLElement) {
   const viewWidth = window.innerWidth || document.documentElement.clientWidth
   const viewHeight = window.innerHeight || document.documentElement.clientHeight
-  const {
-    top,
-    right,
-    bottom,
-    left,
-  } = element.getBoundingClientRect()
+  const { top, right, bottom, left } = element.getBoundingClientRect()
 
-  return (
-    top >= 0 &&
-    left >= 0 &&
-    right <= viewWidth &&
-    bottom <= viewHeight
-  )
+  return top >= 0 && left >= 0 && right <= viewWidth && bottom <= viewHeight
 }

@@ -49,9 +49,18 @@ class ViewFlow extends React.Component<Iprops, IState> {
 
     if (pv.type === 'image') {
       return <img src={`data:image/png;base64,${pv.data}`} />
-    }
-    else if (pv.type === 'json') {
-      return <div><JSONPretty data={pv.data} keyStyle={'color: rgb(130,40,144);'} stringStyle={'color: rgb(153,68,60);'} valueStyle={'color: rgb(25,1,199);'} booleanStyle={'color: rgb(94,105,192);'} /></div>
+    } else if (pv.type === 'json') {
+      return (
+        <div>
+          <JSONPretty
+            data={pv.data}
+            keyStyle={'color: rgb(130,40,144);'}
+            stringStyle={'color: rgb(153,68,60);'}
+            valueStyle={'color: rgb(25,1,199);'}
+            booleanStyle={'color: rgb(94,105,192);'}
+          />
+        </div>
+      )
     }
 
     return <div style={{ color: 'gray' }}>Not support preview</div>
@@ -65,10 +74,23 @@ class ViewFlow extends React.Component<Iprops, IState> {
     if (!pv) return <div style={{ color: 'gray' }}>Not support preview</div>
 
     if (pv.type === 'json') {
-      return <div><JSONPretty data={pv.data} keyStyle={'color: rgb(130,40,144);'} stringStyle={'color: rgb(153,68,60);'} valueStyle={'color: rgb(25,1,199);'} booleanStyle={'color: rgb(94,105,192);'} /></div>
-    }
-    else if (pv.type === 'binary') {
-      return <div><pre>{pv.data}</pre></div>
+      return (
+        <div>
+          <JSONPretty
+            data={pv.data}
+            keyStyle={'color: rgb(130,40,144);'}
+            stringStyle={'color: rgb(153,68,60);'}
+            valueStyle={'color: rgb(25,1,199);'}
+            booleanStyle={'color: rgb(94,105,192);'}
+          />
+        </div>
+      )
+    } else if (pv.type === 'binary') {
+      return (
+        <div>
+          <pre>{pv.data}</pre>
+        </div>
+      )
     }
 
     return <div style={{ color: 'gray' }}>Not support preview</div>
@@ -101,44 +123,40 @@ class ViewFlow extends React.Component<Iprops, IState> {
             <p>Id: {flow.id}</p>
           </div>
         </div>
-        {
-          !conn ? null :
-            <>
-              {
-                !conn.serverConn ? null :
-                  <>
-                    <div className="header-block">
-                      <p>Server Connection</p>
-                      <div className="header-block-content">
-                        <p>Address: {conn.serverConn.address}</p>
-                        <p>Resolved Address: {conn.serverConn.peername}</p>
-                      </div>
-                    </div>
-                  </>
-              }
-              <div className="header-block">
-                <p>Client Connection</p>
-                <div className="header-block-content">
-                  <p>Address: {conn.clientConn.address}</p>
+        {!conn ? null : (
+          <>
+            {!conn.serverConn ? null : (
+              <>
+                <div className="header-block">
+                  <p>Server Connection</p>
+                  <div className="header-block-content">
+                    <p>Address: {conn.serverConn.address}</p>
+                    <p>Resolved Address: {conn.serverConn.peername}</p>
+                  </div>
                 </div>
+              </>
+            )}
+            <div className="header-block">
+              <p>Client Connection</p>
+              <div className="header-block-content">
+                <p>Address: {conn.clientConn.address}</p>
               </div>
-              <div className="header-block">
-                <p>Connection Info</p>
-                <div className="header-block-content">
-                  <p>Id: {conn.clientConn.id}</p>
-                  <p>Intercept: {conn.intercept ? 'true' : 'false'}</p>
-                  {
-                    conn.opening == null ? null :
-                      <p>Opening: {conn.opening ? 'true' : 'false'}</p>
-                  }
-                  {
-                    conn.flowCount == null ? null :
-                      <p>Flow Count: {conn.flowCount}</p>
-                  }
-                </div>
+            </div>
+            <div className="header-block">
+              <p>Connection Info</p>
+              <div className="header-block-content">
+                <p>Id: {conn.clientConn.id}</p>
+                <p>Intercept: {conn.intercept ? 'true' : 'false'}</p>
+                {conn.opening == null ? null : (
+                  <p>Opening: {conn.opening ? 'true' : 'false'}</p>
+                )}
+                {conn.flowCount == null ? null : (
+                  <p>Flow Count: {conn.flowCount}</p>
+                )}
               </div>
-            </>
-        }
+            </div>
+          </>
+        )}
       </div>
     )
   }
@@ -148,25 +166,34 @@ class ViewFlow extends React.Component<Iprops, IState> {
     if (!flow) return null
 
     return (
-      <Button size="sm" variant={this.state.copied ? 'success' : 'primary'} disabled={this.state.copied} onClick={() => {
-        const curl = fetchToCurl({
-          url: flow.request.url,
-          method: flow.request.method,
-          headers: Object.keys(flow.request.header).reduce((obj: any, key: string) => {
-            obj[key] = flow.request.header[key][0]
-            return obj
-          }, {}),
-          body: flow.requestBody(),
-        })
-        copy(curl)
+      <Button
+        size="sm"
+        variant={this.state.copied ? 'success' : 'primary'}
+        disabled={this.state.copied}
+        onClick={() => {
+          const curl = fetchToCurl({
+            url: flow.request.url,
+            method: flow.request.method,
+            headers: Object.keys(flow.request.header).reduce(
+              (obj: any, key: string) => {
+                obj[key] = flow.request.header[key][0]
+                return obj
+              },
+              {},
+            ),
+            body: flow.requestBody(),
+          })
+          copy(curl)
 
-        this.setState({ copied: true }, () => {
-          setTimeout(() => {
-            this.setState({ copied: false })
-          }, 1000)
-        })
-
-      }}>{this.state.copied ? 'Copied' : 'Copy as cURL'}</Button>
+          this.setState({ copied: true }, () => {
+            setTimeout(() => {
+              this.setState({ copied: false })
+            }, 1000)
+          })
+        }}
+      >
+        {this.state.copied ? 'Copied' : 'Copy as cURL'}
+      </Button>
     )
   }
 
@@ -197,18 +224,23 @@ class ViewFlow extends React.Component<Iprops, IState> {
               left: '0px',
               cursor: 'pointer',
             }}
-            onClick={() => { this.props.onClose() }}>x</span>
+            onClick={() => {
+              this.props.onClose()
+            }}
+          >
+            x
+          </span>
 
           <EditFlow
             flow={flow}
-            onChangeRequest={request => {
+            onChangeRequest={(request) => {
               flow.request.method = request.method
               flow.request.url = request.url
               flow.request.header = request.header
               if (isTextBody(flow.request)) flow.request.body = request.body
               this.props.onReRenderFlows()
             }}
-            onChangeResponse={response => {
+            onChangeResponse={(response) => {
               if (!flow.response) flow.response = {} as IResponse
 
               flow.response.statusCode = response.statusCode
@@ -216,7 +248,7 @@ class ViewFlow extends React.Component<Iprops, IState> {
               if (isTextBody(flow.response)) flow.response.body = response.body
               this.props.onReRenderFlows()
             }}
-            onMessage={msg => {
+            onMessage={(msg) => {
               this.props.onMessage(msg)
               flow.waitIntercept = false
               this.props.onReRenderFlows()
@@ -226,142 +258,209 @@ class ViewFlow extends React.Component<Iprops, IState> {
           <div>{this.copyAsCurl()}</div>
 
           <div>
-            <span className={flowTab === 'Detail' ? 'selected' : undefined} onClick={() => { this.setState({ flowTab: 'Detail' }) }}>Detail</span>
-            <span className={flowTab === 'Headers' ? 'selected' : undefined} onClick={() => { this.setState({ flowTab: 'Headers' }) }}>Headers</span>
-            <span className={flowTab === 'Preview' ? 'selected' : undefined} onClick={() => { this.setState({ flowTab: 'Preview' }) }}>Preview</span>
-            <span className={flowTab === 'Response' ? 'selected' : undefined} onClick={() => { this.setState({ flowTab: 'Response' }) }}>Response</span>
-            <span className={flowTab === 'Hexview' ? 'selected' : undefined} onClick={() => { this.setState({ flowTab: 'Hexview' }) }}>Hexview</span>
+            <span
+              className={flowTab === 'Detail' ? 'selected' : undefined}
+              onClick={() => {
+                this.setState({ flowTab: 'Detail' })
+              }}
+            >
+              Detail
+            </span>
+            <span
+              className={flowTab === 'Headers' ? 'selected' : undefined}
+              onClick={() => {
+                this.setState({ flowTab: 'Headers' })
+              }}
+            >
+              Headers
+            </span>
+            <span
+              className={flowTab === 'Preview' ? 'selected' : undefined}
+              onClick={() => {
+                this.setState({ flowTab: 'Preview' })
+              }}
+            >
+              Preview
+            </span>
+            <span
+              className={flowTab === 'Response' ? 'selected' : undefined}
+              onClick={() => {
+                this.setState({ flowTab: 'Response' })
+              }}
+            >
+              Response
+            </span>
+            <span
+              className={flowTab === 'Hexview' ? 'selected' : undefined}
+              onClick={() => {
+                this.setState({ flowTab: 'Hexview' })
+              }}
+            >
+              Hexview
+            </span>
           </div>
         </div>
 
         <div style={{ padding: '20px 25px' }}>
-          {
-            !(flowTab === 'Headers') ? null :
-              <div>
-                <div className="header-block">
-                  <p>General</p>
-                  <div className="header-block-content">
-                    <p>Request URL: {request.url}</p>
-                    <p>Request Method: {request.method}</p>
-                    <p>Status Code: {`${response.statusCode || '(pending)'}`}</p>
-                  </div>
+          {!(flowTab === 'Headers') ? null : (
+            <div>
+              <div className="header-block">
+                <p>General</p>
+                <div className="header-block-content">
+                  <p>Request URL: {request.url}</p>
+                  <p>Request Method: {request.method}</p>
+                  <p>Status Code: {`${response.statusCode || '(pending)'}`}</p>
                 </div>
-
-                {
-                  !(response.header) ? null :
-                    <div className="header-block">
-                      <p>Response Headers</p>
-                      <div className="header-block-content">
-                        {
-                          Object.keys(response.header).map(key => {
-                            return (
-                              <p key={key}>{key}: {response.header[key].join(' ')}</p>
-                            )
-                          })
-                        }
-                      </div>
-                    </div>
-                }
-
-                <div className="header-block">
-                  <p>Request Headers</p>
-                  <div className="header-block-content">
-                    {
-                      !(request.header) ? null :
-                        Object.keys(request.header).map(key => {
-                          return (
-                            <p key={key}>{key}: {request.header[key].join(' ')}</p>
-                          )
-                        })
-                    }
-                  </div>
-                </div>
-
-                {
-                  !(searchItems.length) ? null :
-                    <div className="header-block">
-                      <p>Query String Parameters</p>
-                      <div className="header-block-content">
-                        {
-                          searchItems.map(({ key, value }, index) => {
-                            return (
-                              <p key={`${key}-${index}`}>{key}: {value}</p>
-                            )
-                          })
-                        }
-                      </div>
-                    </div>
-                }
-
-                {
-                  !(request.body && request.body.byteLength) ? null :
-                    <div className="header-block">
-                      <p>Request Body</p>
-                      <div className="header-block-content">
-                        <div>
-                          <div className="request-body-detail" style={{ marginBottom: '15px' }}>
-                            <span className={this.state.requestBodyViewTab === 'Raw' ? 'selected' : undefined} onClick={() => { this.setState({ requestBodyViewTab: 'Raw' }) }}>Raw</span>
-                            <span className={this.state.requestBodyViewTab === 'Preview' ? 'selected' : undefined} onClick={() => { this.setState({ requestBodyViewTab: 'Preview' }) }}>Preview</span>
-                          </div>
-
-                          {
-                            !(this.state.requestBodyViewTab === 'Raw') ? null :
-                              <div>
-                                {
-                                  !(flow.isTextRequest()) ? <span style={{ color: 'gray' }}>Not text Request</span> : flow.requestBody()
-                                }
-                              </div>
-                          }
-
-                          {
-                            !(this.state.requestBodyViewTab === 'Preview') ? null :
-                              <div>{this.requestBodyPreview()}</div>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                }
-
               </div>
-          }
 
-          {
-            !(flowTab === 'Response') ? null :
-              !(response.body && response.body.byteLength) ? <div style={{ color: 'gray' }}>No response</div> :
-                !(flow.isTextResponse()) ? <div style={{ color: 'gray' }}>Not text response</div> :
-                  <div>
-                    <div style={{ marginBottom: '20px' }}>
-                      <FormCheck
-                        inline
-                        type="checkbox"
-                        checked={this.state.responseBodyLineBreak}
-                        onChange={e => {
-                          this.setState({ responseBodyLineBreak: e.target.checked })
-                        }}
-                        label="自动换行"></FormCheck>
-                    </div>
-                    <div style={{ whiteSpace: this.state.responseBodyLineBreak ? 'pre-wrap' : 'pre' }}>
-                      {flow.responseBody()}
+              {!response.header ? null : (
+                <div className="header-block">
+                  <p>Response Headers</p>
+                  <div className="header-block-content">
+                    {Object.keys(response.header).map((key) => {
+                      return (
+                        <p key={key}>
+                          {key}: {response.header[key].join(' ')}
+                        </p>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className="header-block">
+                <p>Request Headers</p>
+                <div className="header-block-content">
+                  {
+                    !(request.header) ? null :
+                      Object.keys(request.header).map(key => {
+                        return (
+                          <p key={key}>{key}: {request.header[key].join(' ')}</p>
+                        )
+                      })
+                  }
+                </div>
+              </div>
+
+              {!searchItems.length ? null : (
+                <div className="header-block">
+                  <p>Query String Parameters</p>
+                  <div className="header-block-content">
+                    {searchItems.map(({ key, value }, index) => {
+                      return (
+                        <p key={`${key}-${index}`}>
+                          {key}: {value}
+                        </p>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {!(request.body && request.body.byteLength) ? null : (
+                <div className="header-block">
+                  <p>Request Body</p>
+                  <div className="header-block-content">
+                    <div>
+                      <div
+                        className="request-body-detail"
+                        style={{ marginBottom: '15px' }}
+                      >
+                        <span
+                          className={
+                            this.state.requestBodyViewTab === 'Raw'
+                              ? 'selected'
+                              : undefined
+                          }
+                          onClick={() => {
+                            this.setState({
+                              requestBodyViewTab: 'Raw',
+                            })
+                          }}
+                        >
+                          Raw
+                        </span>
+                        <span
+                          className={
+                            this.state.requestBodyViewTab === 'Preview'
+                              ? 'selected'
+                              : undefined
+                          }
+                          onClick={() => {
+                            this.setState({
+                              requestBodyViewTab: 'Preview',
+                            })
+                          }}
+                        >
+                          Preview
+                        </span>
+                      </div>
+
+                      {!(this.state.requestBodyViewTab === 'Raw') ? null : (
+                        <div>
+                          {!flow.isTextRequest() ? (
+                            <span
+                              style={{
+                                color: 'gray',
+                              }}
+                            >
+                              Not text Request
+                            </span>
+                          ) : (
+                            flow.requestBody()
+                          )}
+                        </div>
+                      )}
+
+                      {!(this.state.requestBodyViewTab === 'Preview') ? null : (
+                        <div>{this.requestBodyPreview()}</div>
+                      )}
                     </div>
                   </div>
-          }
+                </div>
+              )}
+            </div>
+          )}
 
-          {
-            !(flowTab === 'Preview') ? null :
-              <div>{this.preview()}</div>
-          }
+          {!(flowTab === 'Response') ? null : !(
+            response.body && response.body.byteLength
+          ) ? (
+              <div style={{ color: 'gray' }}>No response</div>
+            ) : !flow.isTextResponse() ? (
+              <div style={{ color: 'gray' }}>Not text response</div>
+            ) : (
+              <div>
+                <div style={{ marginBottom: '20px' }}>
+                  <FormCheck
+                    inline
+                    type="checkbox"
+                    checked={this.state.responseBodyLineBreak}
+                    onChange={(e) => {
+                      this.setState({
+                        responseBodyLineBreak: e.target.checked,
+                      })
+                    }}
+                    label="自动换行"
+                  ></FormCheck>
+                </div>
+                <div
+                  style={{
+                    whiteSpace: this.state.responseBodyLineBreak
+                      ? 'pre-wrap'
+                      : 'pre',
+                  }}
+                >
+                  {flow.responseBody()}
+                </div>
+              </div>
+            )}
 
-          {
-            !(flowTab === 'Hexview') ? null :
-              <div>{this.hexview()}</div>
-          }
+          {!(flowTab === 'Preview') ? null : <div>{this.preview()}</div>}
 
-          {
-            !(flowTab === 'Detail') ? null :
-              <div>{this.detail()}</div>
-          }
+          {!(flowTab === 'Hexview') ? null : <div>{this.hexview()}</div>}
+
+          {!(flowTab === 'Detail') ? null : <div>{this.detail()}</div>}
         </div>
-
       </div>
     )
   }

@@ -18,7 +18,7 @@ class Resizer extends React.Component<IProps, IState> {
   constructor(props: IProps) {
     super(props)
     this.state = {
-      width: props.width
+      width: props.width,
     }
 
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this)

@@ -9,13 +9,16 @@ import type { Flow, Header, IRequest, IResponse } from '../lib/flow'
 
 const stringifyRequest = (request: IRequest) => {
   const firstLine = `${request.method} ${request.url}`
-  const headerLines = Object.keys(request.header).map(key => {
-    const valstr = request.header[key].join(' \t ') // for parse convenience
-    return `${key}: ${valstr}`
-  }).join('\n')
+  const headerLines = Object.keys(request.header)
+    .map((key) => {
+      const valstr = request.header[key].join(' \t ') // for parse convenience
+      return `${key}: ${valstr}`
+    })
+    .join('\n')
 
   let bodyLines = ''
-  if (request.body && isTextBody(request)) bodyLines = new TextDecoder().decode(request.body)
+  if (request.body && isTextBody(request))
+    bodyLines = new TextDecoder().decode(request.body)
 
   return `${firstLine}\n\n${headerLines}\n\n${bodyLines}`
 }
@@ -53,13 +56,16 @@ const parseRequest = (content: string): IRequest | undefined => {
 
 const stringifyResponse = (response: IResponse) => {
   const firstLine = `${response.statusCode}`
-  const headerLines = Object.keys(response.header).map(key => {
-    const valstr = response.header[key].join(' \t ') // for parse convenience
-    return `${key}: ${valstr}`
-  }).join('\n')
+  const headerLines = Object.keys(response.header)
+    .map((key) => {
+      const valstr = response.header[key].join(' \t ') // for parse convenience
+      return `${key}: ${valstr}`
+    })
+    .join('\n')
 
   let bodyLines = ''
-  if (response.body && isTextBody(response)) bodyLines = new TextDecoder().decode(response.body)
+  if (response.body && isTextBody(response))
+    bodyLines = new TextDecoder().decode(response.body)
 
   return `${firstLine}\n\n${headerLines}\n\n${bodyLines}`
 }
@@ -92,7 +98,6 @@ const parseResponse = (content: string): IResponse | undefined => {
     body,
   }
 }
-
 
 interface IProps {
   flow: Flow
@@ -181,34 +186,57 @@ class EditFlow extends React.Component<IProps, IState> {
 
     return (
       <div className="flow-wait-area">
+        <Button size="sm" onClick={this.handleShow}>
+          Edit
+        </Button>
 
-        <Button size="sm" onClick={this.handleShow}>Edit</Button>
+        <Button
+          size="sm"
+          onClick={() => {
+            const msgType =
+              when === 'response'
+                ? SendMessageType.CHANGE_RESPONSE
+                : SendMessageType.CHANGE_REQUEST
+            const msg = buildMessageEdit(msgType, flow)
+            this.props.onMessage(msg)
+          }}
+        >
+          Continue
+        </Button>
 
-        <Button size="sm" onClick={() => {
-          const msgType = when === 'response' ? SendMessageType.CHANGE_RESPONSE : SendMessageType.CHANGE_REQUEST
-          const msg = buildMessageEdit(msgType, flow)
-          this.props.onMessage(msg)
-        }}>Continue</Button>
-
-        <Button size="sm" onClick={() => {
-          const msgType = when === 'response' ? SendMessageType.DROP_RESPONSE : SendMessageType.DROP_REQUEST
-          const msg = buildMessageEdit(msgType, flow)
-          this.props.onMessage(msg)
-        }}>Drop</Button>
-
+        <Button
+          size="sm"
+          onClick={() => {
+            const msgType =
+              when === 'response'
+                ? SendMessageType.DROP_RESPONSE
+                : SendMessageType.DROP_REQUEST
+            const msg = buildMessageEdit(msgType, flow)
+            this.props.onMessage(msg)
+          }}
+        >
+          Drop
+        </Button>
 
         <Modal size="lg" show={this.state.show} onHide={this.handleClose}>
           <Modal.Header closeButton>
-            <Modal.Title>Edit {when === 'request' ? 'Request' : 'Response'}</Modal.Title>
+            <Modal.Title>
+              Edit {when === 'request' ? 'Request' : 'Response'}
+            </Modal.Title>
           </Modal.Header>
 
           <Modal.Body>
             <Form.Group>
-              <Form.Control as="textarea" rows={10} value={this.state.content} onChange={e => { this.setState({ content: e.target.value }) }} />
+              <Form.Control
+                as="textarea"
+                rows={10}
+                value={this.state.content}
+                onChange={(e) => {
+                  this.setState({ content: e.target.value })
+                }}
+              />
             </Form.Group>
-            {
-              !alertMsg ? null : <Alert variant="danger">{alertMsg}</Alert>
-            }
+            {!alertMsg ? null : <Alert variant="danger">{alertMsg}</Alert>}
           </Modal.Body>
 
           <Modal.Footer>
@@ -220,7 +248,6 @@ class EditFlow extends React.Component<IProps, IState> {
             </Button>
           </Modal.Footer>
         </Modal>
-
       </div>
     )
   }
