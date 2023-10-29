@@ -6,3 +6,5 @@
 dist/
 .vscode
 vendor
+*.log
+records
