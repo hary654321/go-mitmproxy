@@ -4,8 +4,11 @@ import "log"
 
 type Bh struct {
 	Host   string `gorm:"column:host" json:"host" `
+	Scheme string `gorm:"column:scheme" json:"scheme" `
+	// Path   string `gorm:"column:path" json:"path" `
 	Header string `gorm:"column:header" json:"header" `
-	Ctime  int64  `gorm:"column:ctime" json:"ctime"`
+	// Body   string `gorm:"column:body" json:"body" `
+	Ctime int64 `gorm:"column:ctime" json:"ctime"`
 }
 
 // 创建任务
@@ -13,8 +16,18 @@ func AddBh(c Bh) error {
 
 	log.Println("添加", c)
 	res := db.Table("browsing_history").Create(&c)
-	return res.Error
+	if res.Error != nil {
+		return update(c)
+	}
 
+	return nil
+}
+
+func update(c Bh) error {
+
+	res := db.Table("browsing_history").Where("host = ?", c.Host).Updates(c)
+
+	return res.Error
 }
 
 // func GetProbeRes(pageNum int, pageSize int, maps map[string]interface{}, order string) (ProbeRes []define.ProbeRes, total int64) {

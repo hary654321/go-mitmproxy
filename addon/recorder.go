@@ -28,6 +28,8 @@ func (i *Recorder) Response(f *proxy.Flow) {
 		// ContentType: f.Response.Header.Get("Content-Type"),
 		// URL:         f.Request.URL.String(),
 		Host:   f.Request.URL.Host,
+		Scheme: f.Request.URL.Scheme,
+		// Path:   f.Request.URL.Path,
 		Header: string(header),
 		Ctime:  time.Now().Unix(),
 	}
